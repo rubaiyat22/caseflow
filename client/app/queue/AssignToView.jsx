@@ -157,7 +157,7 @@ class AssignToView extends React.Component {
     >
       { !assigneeAlreadySelected && <React.Fragment>
         <SearchableDropdown
-          name="Assign to selector"
+          name="Assign to selectors"
           searchable
           hideLabel
           errorMessage={highlightFormItems && !this.state.selectedValue ? 'Choose one' : null}
