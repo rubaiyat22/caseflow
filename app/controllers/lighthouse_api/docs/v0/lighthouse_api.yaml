@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info:
+  title: Lighthouse Appeals API
+  description: API version 0 for Appeals provided by the Lighthouse Project
+  version: 0.0.1
+servers:
+  - url: /lighthouse_api/v0
+paths:
+  /pulse:
+    get:
+      summary: Info on Lighthouse Appeals API status
+      description: Returns status information about the Lighthouse Appeals API.  Use this endpoint if you are unsure another action is available.
+      responses:
+        200:
+          description: Lighthouse Appeals API is available and ready for requests.
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        description: A simple message that everything is OK.
+        503:
+          description: Lighthouse Appeals API is unavailable and will fail requests.
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                        description:
+                          type: string
+                  meta:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        description: A simple message that things are bad.
