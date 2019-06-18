@@ -95,8 +95,9 @@ group :test, :development, :demo do
   gem "rspec-rails"
   # For CircleCI test metadata analysis
   gem "rspec_junit_formatter"
-  gem "rubocop", "~> 0.52", require: false
+  gem "rubocop", "~> 0.70", require: false
   gem "rubocop-performance"
+  gem "rubocop-rails"
   gem "scss_lint", require: false
   gem "simplecov", git: "https://github.com/colszowka/simplecov.git", require: false
   gem "sniffybara", git: "https://github.com/department-of-veterans-affairs/sniffybara.git", branch: "mb-update-capybara-click"
