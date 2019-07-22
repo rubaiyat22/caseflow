@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import StatusMessage from '../../components/StatusMessage';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { PAGE_PATHS, FORM_TYPES } from '../constants';
+import { PAGE_PATHS, FORM_TYPES, CORRECTION_TYPES } from '../constants';
 import _ from 'lodash';
 import Alert from '../../components/Alert';
 import IneligibleIssuesList from '../components/IneligibleIssuesList';
@@ -116,7 +116,31 @@ const getChecklistItems = (formType, issuesBefore, issuesAfter, isInformalConfer
   ]);
 };
 
-class DecisionReviewEditCompletedPage extends React.PureComponent {
+const getEPCorrections = ({ formType, addedIssues, isRating }) => {
+  const claimReviewName = _.find(FORM_TYPES, { key: formType }).shortName;
+  const epType = isRating ? 'Rating' : 'Nonrating';
+
+  // This should get redone to account for other correction types
+  const correctionType = _.find(CORRECTION_TYPES, i => i.key === 'control').name;
+
+  const corrections = addedIssues.filter(ri => (ri.isRating === isRating && ri.correctionType));
+  if (!corrections.length) {
+    return [];
+  }
+
+  const res = <Fragment>
+    <strong>A {claimReviewName} {epType} {correctionType} 930 EP is being established:</strong>
+    {
+      corrections.map(
+        (ri, i) => <p key={`${epType}-issue-${i}`}>Contention: {ri.contentionText}</p>
+      )
+    }
+  </Fragment>
+
+  return [res];
+}
+
+class DecisionReviewEditCompletedPage extends React.Component {
   render() {
     const {
       veteran,
@@ -145,6 +169,8 @@ class DecisionReviewEditCompletedPage extends React.PureComponent {
     const hasWithdrawnIssues = !_.isEmpty(withdrawnRequestIssues);
     const editedRequestIssues = addedIssues.filter((ri) => ri.editedDescription);
     const hasEditedRequestIssues = !_.isEmpty(editedRequestIssues);
+    const correctedRequestIssues = addedIssues.filter(ri => ri.correctionType);
+    const hasCorrectedIssues = !!correctedRequestIssues.length;
     const pageTitle = () => {
       if (issuesAfter.length === 0) {
         return 'Review Removed';
@@ -157,7 +183,7 @@ class DecisionReviewEditCompletedPage extends React.PureComponent {
 
     return <div>
       <StatusMessage
-        title= {pageTitle()}
+        title={pageTitle()}
         type="success"
         leadMessageList={
           leadMessageList({
@@ -168,17 +194,21 @@ class DecisionReviewEditCompletedPage extends React.PureComponent {
           })
         }
         checklist={
-          getChecklistItems(
-            formType,
-            issuesBefore,
-            issuesAfter,
-            informalConference
-          )
+          [
+            ...getChecklistItems(
+              formType,
+              issuesBefore,
+              issuesAfter,
+              informalConference
+            ),
+            ...getEPCorrections({ formType, addedIssues, isRating: true }),
+            ...getEPCorrections({ formType, addedIssues, isRating: false })
+          ]
         }
         wrapInAppSegment={false}
       />
-      { ineligibleRequestIssues.length > 0 && <IneligibleIssuesList issues={ineligibleRequestIssues} /> }
-      { hasWithdrawnIssues && <Fragment>
+      {ineligibleRequestIssues.length > 0 && <IneligibleIssuesList issues={ineligibleRequestIssues} />}
+      {hasWithdrawnIssues && <Fragment>
         <ul className="cf-issue-checklist cf-left-padding">
           <li>
             <strong>Withdrawn</strong>
@@ -188,8 +218,19 @@ class DecisionReviewEditCompletedPage extends React.PureComponent {
               </p>)}
           </li>
         </ul>
-      </Fragment> }
-      { hasEditedRequestIssues && <Fragment>
+      </Fragment>}
+      {hasCorrectedIssues && <Fragment>
+        <ul className="cf-issue-checklist cf-left-padding">
+          <li>
+            <strong>Corrected</strong>
+            {correctedRequestIssues.map((ri, i) =>
+              <p key={`corrected-issue-${i}`}>
+                {ri.contentionText}
+              </p>)}
+          </li>
+        </ul>
+      </Fragment>}
+      {hasEditedRequestIssues && <Fragment>
         <ul className="cf-success-checklist cf-left-padding">
           <li>
             <strong>Edited</strong>
@@ -199,9 +240,9 @@ class DecisionReviewEditCompletedPage extends React.PureComponent {
               </p>)}
           </li>
         </ul>
-      </Fragment> }
+      </Fragment>}
     </div>
-    ;
+      ;
   }
 }
 
