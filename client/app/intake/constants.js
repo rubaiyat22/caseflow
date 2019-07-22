@@ -190,6 +190,13 @@ export const CANCELLATION_REASONS = {
   }
 };
 
+export const CORRECTION_TYPES = {
+  CONTROL: {
+    key: 'control',
+    name: 'Control'
+  }
+}
+
 const PAYEE_CODES = {
   '00': '00 - Veteran',
   '01': '01 - First Payee Recipient',
