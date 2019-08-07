@@ -104,23 +104,7 @@ class AppealHearingLocationsDropdown extends React.Component {
       this.props.onDropdownError(dropdownName, null);
     }).
       catch((error) => {
-        let errorReason = '.';
-
-        switch (error.response.body.message) {
-        case 'InvalidRequestStreetAddress':
-          errorReason = ' because their address does not exist in VBMS.';
-          break;
-        case 'AddressCouldNotBeFound':
-          errorReason = ' because their address from VBMS could not be found on a map.';
-          break;
-        case 'DualAddressError':
-          errorReason = ' because their address from VBMS is ambiguous.';
-          break;
-        default:
-          errorReason = '. Service is temporarily unavailable.';
-        }
-
-        const errorMsg = `Could not find hearing locations for this appellant${errorReason}`;
+        const errorMsg = `Could not find hearing locations for this appellant. ${error.response.body.message}`;
 
         this.props.onReceiveDropdownData(dropdownName, []);
         this.props.onDropdownError(dropdownName, errorMsg);
@@ -167,6 +151,14 @@ AppealHearingLocationsDropdown.propTypes = {
   name: PropTypes.string,
   label: PropTypes.string,
   dynamic: PropTypes.bool,
+  dropdownName: PropTypes.string,
+  onDropdownError: PropTypes.func,
+  onFetchDropdownData: PropTypes.func,
+  onReceiveDropdownData: PropTypes.func,
+  appealHearingLocations: PropTypes.shape({
+    isFetching: PropTypes.bool,
+    options: PropTypes.array
+  }),
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object
